@@ -7,11 +7,11 @@ import 'OpenZeppelin/openzeppelin-contracts@3.4.0/contracts/token/ERC20/IERC20.s
 import 'OpenZeppelin/openzeppelin-contracts@3.4.0/contracts/math/SafeMath.sol';
 
 import './WhitelistSpell.sol';
-import '../utils/HomoraMath.sol';
-import '../../interfaces/IUniswapV2Factory.sol';
-import '../../interfaces/IUniswapV2Router02.sol';
-import '../../interfaces/IUniswapV2Pair.sol';
-import '../../interfaces/IWStakingRewards.sol';
+import '../../interfaces/Alpha-Homora---Lending/utils/HomoraMath.sol';
+import '../../interfaces/Alpha-Homora---Lending/IUniswapV2Factory.sol';
+import '../../interfaces/Alpha-Homora---Lending/IUniswapV2Router02.sol';
+import '../../interfaces/Alpha-Homora---Lending/IUniswapV2Pair.sol';
+import '../../interfaces/Alpha-Homora---Lending/IWStakingRewards.sol';
 
 contract UniswapV2SpellV1 is WhitelistSpell {
   using SafeMath for uint;

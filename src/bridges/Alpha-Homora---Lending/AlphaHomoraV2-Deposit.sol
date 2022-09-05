@@ -29,42 +29,28 @@ contract AlphaHomorabridge1 is BridgeBase {
     error InsufficientAmountOut();
     error Overflow();
 
-  
-    struct Path {
-        address tokenA;
-        address tokenB;       
-        bytes AmountsInStruct;
+    struct AmountInStruct {
+        uint256 amtAUser; // Supplied tokenA amount
+        uint256 amtBUser; // Supplied tokenB amount
+        uint256 amtLPUser; // Supplied LP token amount
+        uint256 amtABorrow; // Borrow tokenA amount
+        uint256 amtBBorrow; // Borrow tokenB amount
+        uint256 amtLPBorrow; // Borrow LP token amount
+        uint256 amtAMin; // Desired tokenA amount (slippage control)
+        uint256 amtBMin; // Desired tokenB amount (slippage control)
     }
-
-    struct SplitPath {
-    address tokenA;
-    address tokenB;
-        bytes AmountRepayStruct;
-    }
-
-    struct AmountsInStruct {
-        uint256 amountAUser; // Supplied tokenA amount
-        uint256 amountBUser; // Supplied tokenB amount
-        uint256 amountLPUser; // Supplied LP token amount
-        uint256 amountABorrow; // Borrow tokenA amount
-        uint256 amountBBorrow; // Borrow tokenB amount
-        uint256 amountLPBorrow; // Borrow LP token amount
-        uint256 amountAMin; // Desired tokenA amount (slippage control)
-        uint256 amountBMin; // Desired tokenB amount (slippage control)
-    }
-
 
     struct AmountRepayStruct {
-        uint256 amountLPTake; // LP amount being taken out from Homora.
-        uint256 amountLPWithdraw; // LP amount that we transfer to caller (owner).
-        uint256 amountARepay; // Repay tokenA amount
-        uint256 amountBRepay; // Repay tokenB amount
-        uint256 amountLPRepay; // Repay LP token amount
-        uint256 amountAMin; // Desired tokenA amount
-        uint256 amountBMin; // Desired tokenB amount
+        uint256 amtLPTake; // LP amount being taken out from Homora.
+        uint256 amtLPWithdraw; // LP amount that we transfer to caller (owner).
+        uint256 amtARepay; // Repay tokenA amount
+        uint256 amtBRepay; // Repay tokenB amount
+        uint256 amtLPRepay; // Repay LP token amount
+        uint256 amtAMin; // Desired tokenA amount
+        uint256 amtBMin; // Desired tokenB amount
     }
 
-
+    
     // @dev Event which is emitted when the output token doesn't implement decimals().
     event DefaultDecimalsWarning();
 
@@ -72,8 +58,6 @@ contract AlphaHomorabridge1 is BridgeBase {
     IBank public constant BANK = IBank(0xba5eBAf3fc1Fcca67147050Bf80462393814E54B);
     address public constant spell = 0x00b1a4E7F217380a7C9e6c12F327AC4a1D9B6A14;
    
-
-
 
     /**
      * @notice Set address of rollup processor
@@ -97,8 +81,8 @@ contract AlphaHomorabridge1 is BridgeBase {
             address tokenIn = _tokensIn[i];
             // Using safeApprove(...) instead of approve(...) and first setting the allowance to 0 because underlying
             // can be Tether
-            IERC20(tokenIn).safeApprove(address(ROLLUP_PROCESSOR), 0);
-            IERC20(tokenIn).safeApprove(address(ROLLUP_PROCESSOR), type(uint256).max);
+            IERC20(tokenIn).safeApprove(address(BANK), 0);
+            IERC20(tokenIn).safeApprove(address(BANK), type(uint256).max);
             unchecked {
                 ++i;
             }
@@ -119,71 +103,70 @@ contract AlphaHomorabridge1 is BridgeBase {
   
     function convert(
         AztecTypes.AztecAsset calldata _inputAssetA,
-        AztecTypes.AztecAsset calldata _inputAssetB,
-        AztecTypes.AztecAsset calldata, 
         AztecTypes.AztecAsset calldata,
-        uint256, 
-        uint256, 
+        AztecTypes.AztecAsset calldata _outputAssetA, 
+        AztecTypes.AztecAsset calldata, 
+         AztecTypes.AztecAsset calldata _inputAssetB,
+        AztecTypes.AztecAsset calldata,
+        AztecTypes.AztecAsset calldata _outputAssetB, 
+        AztecTypes.AztecAsset calldata, 
+         uint256 _totalInputValue,
+        uint256 _interactionNonce,
+        uint64 _auxData,
         address
     )
         external
         payable
+         
         onlyRollup
-        returns (uint256, uint256, bool)
-    {
-        uint256 tokenInDecimals = 18;
-        bool inputIsEth = _inputAssetA.assetType == AztecTypes.AztecAssetType.ETH;
-
-        uint256 t;
-    }
-    function encodePath(
-        address spell,
-        address _tokenA,
-        address _tokenB,
-        bytes calldata AmountsInStruct
+        returns (
     
-    ) public payable{ 
-          (bool success, bytes memory data) = 
-                spell.delegatecall(
-            abi.encodeWithSignature("addLiquidityWERC20()", _tokenA, _tokenB, AmountsInStruct));
-    }
+            uint256 outputValueA,
+            uint256 outputValueB,
+             uint256,
+            bool
 
-  
-    function _encodeSplitPath(
-        address spell,
-        address _tokenA,
-        address _tokenB,
-        bytes calldata AmountRepayStruct
-    
-       ) public payable{ 
-          
-            (bool success, bytes memory data) = 
-            spell.delegatecall(abi.encodeWithSignature("removeLiquidityWERC20()", _tokenA, _tokenB, AmountRepayStruct));        
-       }
-    function encodeRepayAmounts(
-        uint256 amountLPTake, // LP amount being taken out from Homora.
-        uint256 amountLPWithdraw, // LP amount that we transfer to caller (owner).
-        uint256 amountARepay, // Repay tokenA amount
-        uint256 amountBRepay, // Repay tokenB amount
-        uint256 amountLPRepay, // Repay LP token amount
-        uint256 amountAMin, // Desired tokenA amount
-        uint256 amountBMin // Desired tokenB amount
-    ) public view returns(bytes memory _data) {  
-        abi.encodePacked(amountLPTake, amountLPWithdraw, amountARepay, amountBRepay, amountLPRepay, amountAMin, amountBMin); 
-    }
-    function encodeAmountsIn(
-        uint256 amountAUser, // Supplied tokenA amount
-        uint256 amountBUser, // Supplied tokenB amount
-        uint256 amountLPUser, // Supplied LP token amount
-        uint256 amountABorrow, // Borrow tokenA amount
-        uint256 amountBBorrow, // Borrow tokenB amount
-        uint256 amountLPBorrow, // Borrow LP token amount
-        uint256 amountAMin, // Desired tokenA amount (slippage control)
-        uint256 amountBMin 
+         ) 
+         { if (_auxData == 0) {
+            // Mint
+           
+            address tokenAout = _outputAssetA.erc20Address;
+            address tokenBout = _outputAssetB.erc20Address;
+            uint256 amountAUser = outputValueA;
+            uint256 amountBUser  = outputValueB;
+            uint amountLPUser = 0;
+            uint amountLPBorrow = 0;
+            uint amountABorrow = 0;
+            uint amountBBorrow = 0;
+            uint amountAMin = 0;
+            uint amountBMin = 0;
+                 spell.delegatecall(
+            abi.encodeWithSignature("addLiquidityWERC20()", tokenAout, tokenBout, (keccak256(abi.encodePacked(amountAUser, amountBUser, amountLPUser, amountABorrow, amountBBorrow, amountLPBorrow, amountAMin, amountBMin)))) 
+);
+               
+         
+        } else if (_auxData == 1) {
+            // Redeem
+             address _tokenA = _outputAssetA.erc20Address;
+             address  _tokenB = _outputAssetB.erc20Address;
+             uint amountLPTake = 0;
+             uint amountLPWithdraw = 0;
+             uint amountARepay = 0;
+             uint amountBRepay = 0;
+             uint amountLPRepay = 0;
+             uint amountAMin = 0;
+             uint amountBMin = 0;
+            spell.delegatecall(abi.encodeWithSignature("removeLiquidityWERC20()", _tokenA, _tokenB, (keccak256(abi.encodePacked(amountLPTake, amountLPWithdraw, amountARepay, amountBRepay, amountLPRepay, amountAMin, amountBMin)))) 
+            );         
+        }
+               
+                IRollupProcessor(ROLLUP_PROCESSOR).receiveEthFromBridge{value: outputValueA}(_interactionNonce);
+                 
+                IRollupProcessor(ROLLUP_PROCESSOR).receiveEthFromBridge{value: outputValueB}(_interactionNonce);
+
+                   
        
-    ) public view returns(bytes memory _data) {  
-        abi.encodePacked(amountAUser, amountBUser, amountLPUser, amountBUser, amountLPBorrow, amountAMin, amountBMin); 
-    }
-}
+      
+        }
     
-
+}

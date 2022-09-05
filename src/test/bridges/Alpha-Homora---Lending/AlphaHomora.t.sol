@@ -7,7 +7,7 @@ import {AztecTypes} from "../../../aztec/libraries/AztecTypes.sol";
 
 // Example-specific imports
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {AlphaHomorabridge1} from "../../../bridges/Alpha-Homora---Lending/AlphaHomoraV2-Deposit.sol
+import {AlphaHomorabridge1} from "../../../bridges/Alpha-Homora---Lending/AlphaHomoraV2-Deposit.sol";
 import {ErrorLib} from "../../../bridges/base/ErrorLib.sol";
 
 // @notice The purpose of this test is to directly test convert functionality of the bridge.

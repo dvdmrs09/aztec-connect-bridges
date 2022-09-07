@@ -3,7 +3,8 @@
 pragma solidity >=0.6.12>=0.8.4;
 
 
-import "./UniswapV2SpellV1_flat.sol";
+import {HomoraBank} from "../../interfaces/AlphaHomora/IBank.sol"
+import {ISpell} from "../../interfaces/AlphaHomora/ISpell.sol"
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {AztecTypes} from "../../aztec/libraries/AztecTypes.sol";
 import {IRollupProcessor} from "../../aztec/interfaces/IRollupProcessor.sol";
@@ -56,7 +57,7 @@ contract AlphaHomorabridge1 is BridgeBase {
 
   
     IBank public constant BANK = IBank(0xba5eBAf3fc1Fcca67147050Bf80462393814E54B);
-    address public constant spell = 0x00b1a4E7F217380a7C9e6c12F327AC4a1D9B6A14;
+    ISpell public constant SPELL = ISpell(0x00b1a4E7F217380a7C9e6c12F327AC4a1D9B6A14);
    
 
     /**

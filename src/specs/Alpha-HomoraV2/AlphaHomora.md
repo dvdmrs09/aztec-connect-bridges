@@ -20,6 +20,7 @@ Users can also bring their own LP tokens and add on to their positions.
 Each "spell" defines how the protocol interacts with farming pools, e.g. Uniswap spell, Sushiswap spell, Curve spell.
 Spell functions include e.g. addLiquidity, removeLiquidity.
 
+![Alpha2](https://user-images.githubusercontent.com/14319303/188976156-4da479d3-ad76-4302-b11a-d70e98d411e1.svg)
 
 2. What protocol(s) does the bridge interact with?
 UniSwap, Curve, Sushiswap
@@ -50,6 +51,7 @@ Spell may put collateral back to HomoraBank. If the spell funtion called is e.g.
 4. Please list any edge cases that may restrict the usefulness of the bridge or that the bridge prevents explicit.
 
 5. How can the accounting of the bridge be impacted by interactions performed by other parties than the bridge? Example, if borrowing, how does it handle liquidations etc.
+![cizves9](https://user-images.githubusercontent.com/14319303/188977243-2b921b00-b828-4a2e-bd12-c4acd868d39d.png)
 
 6. What functions are available in [/src/client](./client)?
 

@@ -66,7 +66,26 @@ contract AlphaHomorabridge1 is BridgeBase {
      *
      */
     constructor(address _rollupProcessor, address SPELL, address BANK) BridgeBase(_rollupProcessor) {
-    
+       address dai = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+        address usdc = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+
+        uint256[] memory criterias = new uint256[](2);
+        uint32[] memory gasUsage = new uint32[](2);
+        uint32[] memory minGasPerMinute = new uint32[](2);
+
+        criterias[0] = uint256(keccak256(abi.encodePacked(dai, dai)));
+        criterias[1] = uint256(keccak256(abi.encodePacked(usdc, usdc)));
+
+        gasUsage[0] = 72896;
+        gasUsage[1] = 80249;
+
+        minGasPerMinute[0] = 100;
+        minGasPerMinute[1] = 150;
+
+        // We set gas usage in the subsidy contract
+        // We only want to incentivize the bridge when input and output token is Dai or USDC
+        SUBSIDY.setGasUsageAndMinGasPerMinute(criterias, gasUsage, minGasPerMinute);
+    }
     }
 
     receive() external payable {}
@@ -137,8 +156,25 @@ contract AlphaHomorabridge1 is BridgeBase {
              uint256,
             bool
 
-         ) 
-         { if (_auxData == 0) {
+         )  
+         
+         // Check the input asset is ERC20
+        if (_inputAssetA.assetType != AztecTypes.AztecAssetType.ERC20) revert ErrorLib.InvalidInputA();
+        if (_outputAssetA.erc20Address != _inputAssetA.erc20Address) revert ErrorLib.InvalidOutputA();
+        // Return the input value of input asset
+        outputValueA = _totalInputValue;
+        // Approve rollup processor to take input value of input asset
+        IERC20(_outputAssetA.erc20Address).approve(ROLLUP_PROCESSOR, _totalInputValue);
+
+        // Pay out subsidy to the rollupBeneficiary
+        SUBSIDY.claimSubsidy(
+            computeCriteria(_inputAssetA, _inputAssetB, _outputAssetA, _outputAssetB, _auxData),
+            _rollupBeneficiary
+        );
+    }
+
+ 
+}         { if (_auxData == 0) {
             // Mint
            
             address tokenAout = _outputAssetA.erc20Address;
@@ -177,7 +213,21 @@ contract AlphaHomorabridge1 is BridgeBase {
 
                    
        
-      
+         /**
+     * @notice Computes the criteria that is passed when claiming subsidy.
+     * @param _inputAssetA The input asset
+     * @param _outputAssetA The output asset
+     * @return The criteria
+     */
+    function computeCriteria(
+        AztecTypes.AztecAsset calldata _inputAssetA,
+        AztecTypes.AztecAsset calldata,
+        AztecTypes.AztecAsset calldata _outputAssetA,
+        AztecTypes.AztecAsset calldata,
+        uint64
+    ) public view override(BridgeBase) returns (uint256) {
+        return uint256(keccak256(abi.encodePacked(_inputAssetA.erc20Address, _outputAssetA.erc20Address)));
+    }
         }
     
 }

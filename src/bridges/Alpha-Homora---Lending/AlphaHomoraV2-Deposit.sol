@@ -10,12 +10,11 @@ import {AztecTypes} from "../../aztec/libraries/AztecTypes.sol";
 import {IRollupProcessor} from "../../aztec/interfaces/IRollupProcessor.sol";
 import {ErrorLib} from "../base/ErrorLib.sol";
 import {BridgeBase} from "../base/BridgeBase.sol";
-
-/**
- * @title An example bridge contract.
- * @author Aztec Team
- * @notice You can use this contract to immediately get back what you've deposited.
- * @dev This bridge demonstrates the flow of assets in the convert function. This bridge simply returns what has been
+import {ISubsidy} from "../../aztec/interfaces/ISubsidy.sol";
+ * @title AlphaHomoraV2 bridge contract.
+ * @author dvdmrs09
+ * @notice You can use this contract to deposit into liquidity pools and withdraw the assets.
+ * @dev This bridge simply returns what has been
  * sent to it.
  */
 
@@ -65,7 +64,9 @@ contract AlphaHomorabridge1 is BridgeBase {
      * @param _rollupProcessor Address of rollup processor
      *
      */
-    constructor(address _rollupProcessor) BridgeBase(_rollupProcessor) {}
+    constructor(address _rollupProcessor, address SPELL, address BANK) BridgeBase(_rollupProcessor) {
+    
+    }
 
     receive() external payable {}
     /**
@@ -84,6 +85,10 @@ contract AlphaHomorabridge1 is BridgeBase {
             // can be Tether
             IERC20(tokenIn).safeApprove(address(BANK), 0);
             IERC20(tokenIn).safeApprove(address(BANK), type(uint256).max);
+            IERC20(tokenIn).safeApprove(address(SPELL), 0);
+            IERC20(tokenIn).safeApprove(address(SPELL), type(uint256).max);
+            IERC20(tokenIn).safeApprove(address(ROLLUP_PROCESSOR), 0);
+            IERC20(tokenIn).safeApprove(address(ROLLUP_PROCESSOR), type(uint256).max);
             unchecked {
                 ++i;
             }
@@ -93,6 +98,10 @@ contract AlphaHomorabridge1 is BridgeBase {
             address tokenOut = _tokensOut[i];
             // Using safeApprove(...) instead of approve(...) and first setting the allowance to 0 because underlying
             // can be Tether
+            IERC20(tokenOut).safeApprove(address(BANK), 0);
+            IERC20(tokenOut).safeApprove(address(BANK), type(uint256).max);
+            IERC20(tokenOut).safeApprove(address(SPELL), 0);
+            IERC20(tokenOut).safeApprove(address(SPELL), type(uint256).max);
             IERC20(tokenOut).safeApprove(address(ROLLUP_PROCESSOR), 0);
             IERC20(tokenOut).safeApprove(address(ROLLUP_PROCESSOR), type(uint256).max);
             unchecked {
